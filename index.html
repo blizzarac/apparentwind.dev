@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Sailing Actually Works — apparentwind.dev</title>
+<meta name="description" content="An interactive essay on the physics of sailing: apparent wind, sails as wings, points of sail, polar diagrams — and a crew-overboard drill to prove you've got it.">
+<link rel="canonical" href="https://apparentwind.dev/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="How Sailing Actually Works">
+<meta property="og:description" content="Drag the boat, trim the sail, read the polar. An explorable explanation of sailing physics.">
+<meta property="og:url" content="https://apparentwind.dev/">
+<meta property="og:type" content="article">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">apparentwind.dev</p>
+  <h1>How Sailing Actually Works</h1>
+  <p class="standfirst">
+    Everyone “knows” how a sailboat works: the wind pushes the sail, the boat goes.
+    That explanation is wrong in almost every interesting way — it can’t tell you why
+    boats sail <em>toward</em> the wind, why some go <em>faster than the wind itself</em>,
+    or why the fastest way downwind is not to point downwind.
+    This page explains what’s really going on. Nothing here is a video:
+    every diagram below is live. Drag things.
+  </p>
+</header>
+
+<main>
+
+<section>
+  <h2><span class="section-num">1</span> The two winds</h2>
+  <p>
+    Start with the single most important idea in sailing, the one this site is named
+    after. There is the wind the forecast talks about — the <strong>true wind</strong>,
+    the movement of air over the water. But your sail never feels that wind, because
+    the boat itself is moving. Ride a bicycle at 20&nbsp;km/h on a dead-calm day and
+    you feel a 20&nbsp;km/h headwind you manufactured yourself. A moving boat does the
+    same, and its sail feels the <em>sum</em> of both winds: the
+    <strong>apparent wind</strong>.
+  </p>
+  <p class="instruction">
+    Drag the boat to change course. Slide the boat’s speed up and down.
+    Watch the teal arrow — the only wind the sail will ever know.
+  </p>
+
+  <figure class="widget" id="widget-apparent">
+    <div class="widget-stage"></div>
+    <div class="widget-controls"></div>
+    <div class="widget-readouts"></div>
+    <p class="widget-live" aria-live="polite"></p>
+  </figure>
+
+  <p>
+    Two things fall out of this triangle, and together they shape everything else on
+    this page. Sail <em>across</em> the wind and speed up, and the apparent wind grows
+    stronger and swings forward — so the boat accelerates, which strengthens the
+    apparent wind again. Ice boats and foiling catamarans ride this loop to two or
+    three times the true wind speed, with their sails hauled nearly flat because their
+    “wind” blows almost from dead ahead. Sail <em>away</em> from the wind and the
+    loop runs backwards: your own speed subtracts, the air goes quiet, and the sail
+    starves. Faster across the wind, slower away from it — remember that asymmetry.
+  </p>
+</section>
+
+<section>
+  <h2><span class="section-num">2</span> The sail is a wing</h2>
+  <p>
+    Now, what does the sail <em>do</em> with its apparent wind? A sail isn’t a bag
+    that catches air — it’s a wing stood on end. Seen from above, a trimmed sail
+    takes a cambered, aerofoil shape. Air flowing around it is bent from its path,
+    and the sail feels the reaction: <strong>lift</strong>, at right angles to the
+    apparent wind, plus a toll of <strong>drag</strong> along it.
+  </p>
+  <p class="instruction">
+    One slider: the angle between wind and sail. Find the three regimes —
+    flogging uselessly, drawing beautifully, and stalled.
+  </p>
+
+  <figure class="widget" id="widget-sail">
+    <div class="widget-stage"></div>
+    <div class="widget-controls"></div>
+    <div class="widget-readouts"></div>
+    <p class="widget-live" aria-live="polite"></p>
+  </figure>
+
+  <p>
+    This is what “trimming” means, the whole craft of it: hold the sail at a healthy
+    angle of attack to an apparent wind that never stops shifting. Too far out and it
+    luffs; too far in and it stalls. And notice the force always points mostly
+    <em>sideways</em>, to leeward. A sail alone would just skid the boat across the
+    water like a leaf.
+  </p>
+  <aside class="note">
+    <p>
+      The missing half of the story is underwater. The <strong>keel</strong> is a
+      second wing, flying in water instead of air. As the sail shoves the hull
+      sideways, water strikes the keel at a slight angle and it generates lift of its
+      own, opposing the shove — killing the sideways motion and leaving the forward
+      component. A sailboat is two wings on one stick, one in each fluid,
+      squeezing the hull forward between them like a pinched watermelon seed.
+    </p>
+  </aside>
+</section>
+
+<section>
+  <h2><span class="section-num">3</span> Every direction has a name</h2>
+  <p>
+    Put the two ideas together — apparent wind plus sail-as-wing — and each direction
+    of travel gets its own physics. Sailors name them: close-hauled, reaching,
+    running. What matters is how the sail’s force splits between the part that
+    <em>drives</em> the boat forward and the part that merely <em>heels</em> it over.
+  </p>
+  <p class="instruction">
+    Drag the boat to any heading. The sail trims itself; watch the drive and heel
+    shares change — and find the zone where no trim can save you.
+  </p>
+
+  <figure class="widget" id="widget-points">
+    <div class="widget-stage"></div>
+    <div class="widget-controls"></div>
+    <div class="widget-readouts"></div>
+    <p class="widget-live" aria-live="polite"></p>
+  </figure>
+
+  <p>
+    The shaded cone is the <strong>no-go zone</strong>: point too close to the wind
+    and no sail on earth can meet the air at a working angle. But the zone is only
+    about 40° either side, so a destination dead upwind is reached by borrowing from
+    both edges — sail close-hauled on one tack, turn through the zone quickly enough
+    to coast across it, and carry on close-hauled on the other. That zig-zag,
+    <strong>tacking</strong>, is how sailboats do the officially impossible: travel
+    straight into the wind, on average.
+  </p>
+</section>
+
+<section>
+  <h2><span class="section-num">4</span> The speed map</h2>
+  <p>
+    So how fast is a boat in each direction? Naval architects answer with one elegant
+    chart: the <strong>polar diagram</strong>, a boat’s fingerprint. Wind from the
+    top; each direction of sailing is a bearing from the center, and the curve’s
+    distance from the center is the speed you can hold on that course.
+  </p>
+  <p class="instruction">
+    Drag around the curve. Try each wind strength. Then park the marker dead
+    downwind, look at the VMG bar, and see why racers refuse to sail there.
+  </p>
+
+  <figure class="widget" id="widget-polar">
+    <div class="widget-stage"></div>
+    <div class="widget-controls"></div>
+    <div class="widget-readouts"></div>
+    <p class="widget-live" aria-live="polite"></p>
+  </figure>
+
+  <p>
+    The green bar is <strong>VMG</strong> — velocity made good, your progress along
+    the wind axis rather than through the water. It’s why the best upwind course
+    isn’t the closest you can point, and why the best <em>downwind</em> course isn’t
+    downwind: the polar bulges so hard near a broad reach that sailing 30–40° “the
+    wrong way” and gybing back wins the race to a downwind mark. The two dots mark
+    those optima. Everything in this essay is hiding in this one curve — the no-go
+    notch is the sail failing, the fat beam-reach belly is the apparent-wind loop
+    paying out, and the dead-downwind dent is that same loop running in reverse.
+  </p>
+</section>
+
+<section>
+  <h2><span class="section-num">5</span> Bring them home</h2>
+  <p>
+    Theory exam over; practical begins. A crew member is about to fall overboard.
+    Getting back to a swimmer is the classic test of real wind-sense, because it has
+    a cruel twist: sailboats have no brakes. The only way to stop is to point close
+    enough to the wind that the sail can spill its power — everything on this page,
+    cashed in at once.
+  </p>
+  <p class="instruction">
+    Steer with ← and → (or the buttons). When the alarm sounds, come back and stop
+    inside the dashed circle at under 2 knots. Tip: overshoot downwind of the
+    swimmer, then make your final approach pointing <em>toward</em> the wind.
+  </p>
+
+  <figure class="widget widget-sim" id="widget-mob">
+    <div class="widget-stage"></div>
+    <div class="widget-controls"></div>
+    <div class="widget-readouts"></div>
+    <p class="widget-live" aria-live="polite"></p>
+  </figure>
+
+  <p>
+    If you parked the boat next to the swimmer, congratulations — you now understand
+    sailing better than most people who’ve done it for years. You used the no-go zone
+    as a brake, managed a boat that only turns well with speed, and planned an
+    approach around where the wind would <em>let</em> you stop rather than where
+    you wanted to.
+  </p>
+</section>
+
+<section class="colophon">
+  <h2>Fine print</h2>
+  <p>
+    Every model here is honest about direction and deliberately simple about
+    magnitude. The boat is an idealized ten-metre cruiser-racer; the polar is
+    analytic rather than measured; the sail is a single foil with textbook lift and
+    drag curves; there are no waves, no currents, and nobody gets wet. The shapes of
+    the curves — the no-go notch, the stall, the beam-reach bulge, the downwind
+    hole — are the real thing.
+  </p>
+  <p>
+    This site was written, styled, and coded by Claude (Anthropic’s AI) using
+    Claude Code, as an experiment in what an interactive explanation can teach that
+    prose can’t. No frameworks, no build step, no tracking — just HTML, SVG, and a
+    few hundred lines of vector arithmetic.
+    Source on <a href="https://github.com/blizzarac/apparentwind.dev">GitHub</a>.
+  </p>
+</section>
+
+</main>
+
+<noscript>
+  <p class="noscript-note">
+    The diagrams on this page are interactive and need JavaScript — without it
+    you’re getting the wrong mental model of this website.
+  </p>
+</noscript>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
