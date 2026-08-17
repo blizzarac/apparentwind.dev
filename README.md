@@ -1,7 +1,8 @@
 # apparentwind.dev
 
 **How Sailing Actually Works** — an interactive essay on the physics of sailing,
-in the spirit of explorable explanations.
+in the spirit of explorable explanations. Available in English (`/`) and German
+(`/de/`); all widget text lives in `js/strings.js`, keyed off `<html lang>`.
 
 Five live diagrams, one idea each:
 

@@ -6,7 +6,9 @@ import {
   angleOf, dir, add, scale, dot, clamp, fmt,
 } from "./model.js";
 import { makeSvg, el, arrow, draggable, readouts, hullPath } from "./svg.js";
+import { S } from "./strings.js";
 
+const T = S.points;
 const TWS = 12;
 
 export function mountPoints(root) {
@@ -26,7 +28,7 @@ export function mountPoints(root) {
     const x = 100 + i * ((W - 200) / 6);
     el("line", { x1: x, y1: 12, x2: x, y2: 40 + (i % 3) * 8, class: "wind-streak" }, scenery);
   }
-  el("text", { x: W / 2, y: 12, class: "diagram-note", "text-anchor": "middle", text: "true wind" }, svg);
+  el("text", { x: W / 2, y: 12, class: "diagram-note", "text-anchor": "middle", text: T.trueWindNote }, svg);
 
   const cone = 38;
   const cl = add(C, scale(dir(-cone), RING));
@@ -38,9 +40,9 @@ export function mountPoints(root) {
   el("circle", { cx: C.x, cy: C.y, r: RING, class: "guide-ring" }, scenery);
 
   const LABELS = [
-    [0, "no-go zone"], [45, "close-hauled"], [-45, "close-hauled"],
-    [67, "close reach"], [-67, "close reach"], [90, "beam reach"], [-90, "beam reach"],
-    [125, "broad reach"], [-125, "broad reach"], [180, "run"],
+    [0, T.ring.nogo], [45, T.ring.closehauled], [-45, T.ring.closehauled],
+    [67, T.ring.closereach], [-67, T.ring.closereach], [90, T.ring.beamreach], [-90, T.ring.beamreach],
+    [125, T.ring.broadreach], [-125, T.ring.broadreach], [180, T.ring.run],
   ];
   for (const [a, name] of LABELS) {
     const p = add(C, scale(dir(a), RING + 34));
@@ -78,10 +80,10 @@ export function mountPoints(root) {
 
   // --- vectors --------------------------------------------------------------
   const vecLayer = el("g", { "pointer-events": "none" }, svg);
-  const aApp = arrow(vecLayer, { color: col("--c-apparent"), width: 3, label: "apparent wind" });
-  const aTotal = arrow(vecLayer, { color: col("--c-force"), width: 3, dash: "5 5", label: "sail force" });
-  const aDrive = arrow(vecLayer, { color: col("--c-drive"), width: 4.5, label: "drive" });
-  const aHeel = arrow(vecLayer, { color: col("--c-heel"), width: 4.5, label: "heel" });
+  const aApp = arrow(vecLayer, { color: col("--c-apparent"), width: 3, label: T.vecApparent });
+  const aTotal = arrow(vecLayer, { color: col("--c-force"), width: 3, dash: "5 5", label: T.vecForce });
+  const aDrive = arrow(vecLayer, { color: col("--c-drive"), width: 4.5, label: T.vecDrive });
+  const aHeel = arrow(vecLayer, { color: col("--c-heel"), width: 4.5, label: T.vecHeel });
 
   // --- meters + readouts ----------------------------------------------------
   const meters = document.createElement("div");
@@ -100,15 +102,15 @@ export function mountPoints(root) {
       val: row.querySelector(".meter-val"),
     };
   }
-  const mDrive = meter("Drive (forward)", "--c-drive");
-  const mHeel = meter("Heel (sideways)", "--c-heel");
+  const mDrive = meter(T.meterDrive, "--c-drive");
+  const mHeel = meter(T.meterHeel, "--c-heel");
 
   const posChip = document.createElement("div");
   posChip.className = "state-chip is-pos";
   root.querySelector(".widget-controls").appendChild(posChip);
 
   const out = readouts(root.querySelector(".widget-readouts"),
-    ["True wind angle", "Boat speed", "Apparent wind", "Sheet angle"]);
+    [T.roTwa, T.roBsp, T.roAws, T.roSheet]);
   const caption = root.querySelector(".widget-live");
 
   function update() {
@@ -164,24 +166,18 @@ export function mountPoints(root) {
     mHeel.val.textContent = heel > 0.02 ? `${Math.round((heel / MAXF) * 100)}%` : "—";
 
     const twaAbs = angDiffAbs(h);
-    posChip.textContent = pointOfSail(twaAbs);
-    out.set("True wind angle", `${fmt(twaAbs, 0)}°`);
-    out.set("Boat speed", `${fmt(bsp)} kn`);
-    out.set("Apparent wind", `${fmt(aw.aws)} kn`);
-    out.set("Sheet angle", `${fmt(sheet, 0)}°`);
+    posChip.textContent = S.pos[pointOfSail(twaAbs)];
+    out.set(T.roTwa, `${S.n(twaAbs, 0)}°`);
+    out.set(T.roBsp, `${S.n(bsp)} kn`);
+    out.set(T.roAws, `${S.n(aw.aws)} kn`);
+    out.set(T.roSheet, `${S.n(sheet, 0)}°`);
 
     let msg;
-    if (twaAbs < 30) {
-      msg = "Head to wind: even fully sheeted in, the sail can’t meet the wind at a working angle. It luffs, the boat stops. To go this way you must zig-zag — <em>tack</em> — across the zone.";
-    } else if (twaAbs < 55) {
-      msg = "Close-hauled: the sail is working hard, but the force points mostly <em>sideways</em>. The keel turns that sideways shove into forward motion — at the price of heeling. This is as close to the wind as physics allows.";
-    } else if (twaAbs < 105) {
-      msg = "Reaching: the force vector has rotated forward. Lots of drive, tolerable heel, and the apparent wind is still strong — this is the fast lane.";
-    } else if (twaAbs < 150) {
-      msg = "Broad reach: still mostly lift-driven and quick, though your own speed is now stealing apparent wind. Racers live here downwind.";
-    } else {
-      msg = "Running: the boom is all the way out and the sail is just a parachute — pure drag, no lift. It works, but weakly: notice how little apparent wind is left.";
-    }
+    if (twaAbs < 30) msg = T.msgNoGo;
+    else if (twaAbs < 55) msg = T.msgCloseHauled;
+    else if (twaAbs < 105) msg = T.msgReach;
+    else if (twaAbs < 150) msg = T.msgBroad;
+    else msg = T.msgRun;
     caption.innerHTML = msg;
   }
 

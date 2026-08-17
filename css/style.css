@@ -103,7 +103,23 @@ strong { font-weight: 700; }
 
 /* ---------- masthead ---------- */
 
-.masthead { padding-top: 4.5rem; }
+.masthead { padding-top: 3rem; }
+
+.lang-switch {
+  display: flex;
+  justify-content: flex-end;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-size: 0.85rem;
+  margin-bottom: 1.2rem;
+}
+.lang-switch a {
+  color: var(--ink-3);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.25rem 0.8rem;
+}
+.lang-switch a:hover { color: var(--ink-1); border-color: var(--ink-3); }
 
 .eyebrow {
   font-size: 0.8rem;

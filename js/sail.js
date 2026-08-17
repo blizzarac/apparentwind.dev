@@ -3,6 +3,9 @@
 // and a marker on the Cl/Cd curves. Flow runs left → right.
 import { sailCoeffs, rad, fmt, smoothstep, clamp } from "./model.js";
 import { makeSvg, el, arrow, slider, readouts } from "./svg.js";
+import { S } from "./strings.js";
+
+const T = S.sail;
 
 export function mountSail(root) {
   const W = 680, H = 470;
@@ -16,8 +19,8 @@ export function mountSail(root) {
   const col = (name) => css.getPropertyValue(name).trim();
   const C_LIFT = col("--c-true"), C_DRAG = col("--c-boat"), C_TOTAL = col("--c-force");
 
-  el("text", { x: 24, y: FY - 4, class: "diagram-note", text: "apparent" }, svg);
-  el("text", { x: 24, y: FY + 12, class: "diagram-note", text: "wind →" }, svg);
+  el("text", { x: 24, y: FY - 4, class: "diagram-note", text: T.noteLine1 }, svg);
+  el("text", { x: 24, y: FY + 12, class: "diagram-note", text: T.noteLine2 }, svg);
 
   // --- streamlines ----------------------------------------------------------
   const flowLayer = el("g", { class: "flow-layer" }, svg);
@@ -69,9 +72,9 @@ export function mountSail(root) {
 
   // --- force vectors --------------------------------------------------------
   const vecLayer = el("g", {}, svg);
-  const aDrag = arrow(vecLayer, { color: C_DRAG, width: 3, label: "drag" });
-  const aLift = arrow(vecLayer, { color: C_LIFT, width: 3, label: "lift", labelAnchor: "end" });
-  const aTotal = arrow(vecLayer, { color: C_TOTAL, width: 4.5, label: "total force" });
+  const aDrag = arrow(vecLayer, { color: C_DRAG, width: 3, label: T.vecDrag });
+  const aLift = arrow(vecLayer, { color: C_LIFT, width: 3, label: T.vecLift, labelAnchor: "end" });
+  const aTotal = arrow(vecLayer, { color: C_TOTAL, width: 4.5, label: T.vecTotal });
 
   // --- mini chart: Cl and Cd vs α ------------------------------------------
   const chart = el("g", { transform: `translate(${W - 216} ${H - 166})`, class: "mini-chart" }, svg);
@@ -91,15 +94,15 @@ export function mountSail(root) {
   }
   el("path", { d: dCl, class: "curve", stroke: C_LIFT }, chart);
   el("path", { d: dCd, class: "curve", stroke: C_DRAG }, chart);
-  el("text", { x: ax(23), y: cy(1.95), class: "vec-label", fill: C_LIFT, text: "lift" }, chart);
-  el("text", { x: ax(44), y: cy(1.45), class: "vec-label", fill: C_DRAG, text: "drag" }, chart);
+  el("text", { x: ax(23), y: cy(1.95), class: "vec-label", fill: C_LIFT, text: T.chartLift }, chart);
+  el("text", { x: ax(44), y: cy(1.45), class: "vec-label", "text-anchor": "end", fill: C_DRAG, text: T.chartDrag }, chart);
   const markCl = el("circle", { r: 4.5, class: "chart-marker", fill: C_LIFT }, chart);
   const markCd = el("circle", { r: 4.5, class: "chart-marker", fill: C_DRAG }, chart);
 
   // --- controls -------------------------------------------------------------
   const controls = root.querySelector(".widget-controls");
   slider(controls, {
-    label: "Angle of attack", min: 0, max: 50, step: 0.5, value: state.aoa, unit: "°",
+    label: T.slAoa, min: 0, max: 50, step: 0.5, value: state.aoa, unit: "°",
     onInput: (v) => { state.aoa = v; update(); },
   });
 
@@ -108,7 +111,7 @@ export function mountSail(root) {
   controls.appendChild(stateChip);
 
   const out = readouts(root.querySelector(".widget-readouts"),
-    ["Lift coefficient", "Drag coefficient", "Lift ÷ drag"]);
+    [T.roCl, T.roCd, T.roLd]);
   const caption = root.querySelector(".widget-live");
 
   function update() {
@@ -156,23 +159,23 @@ export function mountSail(root) {
     markCd.setAttribute("cx", ax(a)); markCd.setAttribute("cy", cy(c.cd));
 
     const ld = c.cd > 0 ? c.cl / c.cd : 0;
-    out.set("Lift coefficient", fmt(c.cl, 2));
-    out.set("Drag coefficient", fmt(c.cd, 2));
-    out.set("Lift ÷ drag", fmt(ld, 1));
+    out.set(T.roCl, S.n(c.cl, 2));
+    out.set(T.roCd, S.n(c.cd, 2));
+    out.set(T.roLd, S.n(ld, 1));
 
     let label, cls, msg;
     if (c.luffing > 0.4) {
-      label = "Luffing"; cls = "is-luffing";
-      msg = "The sail is edge-on to the wind: the cloth flogs like a flag and produces almost nothing. This is what “letting the sail out too far” feels like.";
+      label = T.chipLuffing; cls = "is-luffing";
+      msg = T.msgLuffing;
     } else if (c.stalled > 0.5) {
-      label = "Stalled"; cls = "is-stalled";
-      msg = "Sheeted in too hard: the flow can no longer follow the lee side and tears away into eddies. Lift collapses, drag balloons — the sail becomes a barn door.";
+      label = T.chipStalled; cls = "is-stalled";
+      msg = T.msgStalled;
     } else if (c.stalled > 0.05) {
-      label = "On the edge"; cls = "is-edge";
-      msg = "Right at the stall. Racers trim here on purpose — maximum force — but a small gust or wobble tips the flow into separation.";
+      label = T.chipEdge; cls = "is-edge";
+      msg = T.msgEdge;
     } else {
-      label = "Drawing"; cls = "is-drawing";
-      msg = `Smooth attached flow. The sail bends the wind, the wind pushes back: ${fmt(ld, 0)}× more lift than drag. This is a wing, standing upright.`;
+      label = T.chipDrawing; cls = "is-drawing";
+      msg = T.msgDrawing(S.n(ld, 0));
     }
     stateChip.textContent = label;
     stateChip.className = `state-chip ${cls}`;

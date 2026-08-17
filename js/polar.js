@@ -3,7 +3,9 @@
 // projection onto the upwind/downwind axis.
 import { polarSpeed, bestVmg, dir, add, scale, angleOf, clamp, fmt, rad } from "./model.js";
 import { makeSvg, el, draggable, readouts } from "./svg.js";
+import { S } from "./strings.js";
 
+const T = S.polar;
 const WINDS = [6, 10, 16, 22];
 const PXKN = 26.5;
 
@@ -46,9 +48,9 @@ export function mountPolar(root) {
     class: "nogo-zone",
     d: `M ${C.x} ${C.y} L ${C.x} ${C.y - RMAX} A ${RMAX} ${RMAX} 0 0 1 ${fmt(ng.x, 1)} ${fmt(ng.y, 1)} Z`,
   }, grid);
-  el("text", { x: C.x + 34, y: C.y - RMAX + 26, class: "diagram-note", text: "no-go" }, grid);
-  el("text", { x: C.x, y: C.y - RMAX - 22, class: "diagram-note", "text-anchor": "middle", text: "↑ upwind" }, svg);
-  el("text", { x: C.x, y: C.y + RMAX + 30, class: "diagram-note", "text-anchor": "middle", text: "↓ downwind" }, svg);
+  el("text", { x: C.x + 34, y: C.y - RMAX + 26, class: "diagram-note", text: T.nogo }, grid);
+  el("text", { x: C.x, y: C.y - RMAX - 22, class: "diagram-note", "text-anchor": "middle", text: T.upwind }, svg);
+  el("text", { x: C.x, y: C.y + RMAX + 30, class: "diagram-note", "text-anchor": "middle", text: T.downwind }, svg);
 
   // --- curves ---------------------------------------------------------------
   const curveLayer = el("g", {}, svg);
@@ -64,7 +66,7 @@ export function mountPolar(root) {
     const lp = pt(labelAngle, polarSpeed(labelAngle, tws) + 0.6);
     const label = el("text", {
       x: fmt(lp.x, 1), y: fmt(lp.y + 4, 1), class: "vec-label polar-curve-label",
-      fill: `var(--polar-${i + 1})`, text: `${tws} kn wind`,
+      fill: `var(--polar-${i + 1})`, text: T.curveLabel(tws),
     }, curveLayer);
     return { tws, path, label };
   });
@@ -72,12 +74,12 @@ export function mountPolar(root) {
   // --- VMG projection + marker ---------------------------------------------
   const projDrop = el("line", { class: "vmg-drop" }, svg);
   const projAxis = el("line", { class: "vmg-axis", stroke: col("--c-drive") }, svg);
-  const projLabel = el("text", { class: "vec-label", fill: col("--c-drive"), text: "VMG" }, svg);
+  const projLabel = el("text", { class: "vec-label", fill: col("--c-drive"), text: T.vmg }, svg);
   const radial = el("line", { class: "polar-radial" }, svg);
   const bestUpDot = el("circle", { r: 5, class: "best-dot" }, svg);
   const bestDownDot = el("circle", { r: 5, class: "best-dot" }, svg);
-  const bestUpText = el("text", { class: "tick-label", text: "best VMG upwind" }, svg);
-  const bestDownText = el("text", { class: "tick-label", "text-anchor": "end", text: "best VMG downwind" }, svg);
+  const bestUpText = el("text", { class: "tick-label", text: T.bestUp }, svg);
+  const bestDownText = el("text", { class: "tick-label", "text-anchor": "end", text: T.bestDown }, svg);
 
   const markerG = el("g", {}, svg);
   const markerHit = el("circle", { r: 30, class: "handle-hit" }, markerG);
@@ -99,12 +101,12 @@ export function mountPolar(root) {
   const chipRow = document.createElement("div");
   chipRow.className = "chip-row";
   chipRow.setAttribute("role", "group");
-  chipRow.setAttribute("aria-label", "True wind speed");
+  chipRow.setAttribute("aria-label", T.chipGroup);
   const chips = WINDS.map((tws) => {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "chip";
-    b.textContent = `${tws} kn`;
+    b.textContent = T.chip(tws);
     b.addEventListener("click", () => { state.tws = tws; update(); });
     chipRow.appendChild(b);
     return { tws, b };
@@ -112,7 +114,7 @@ export function mountPolar(root) {
   root.querySelector(".widget-controls").appendChild(chipRow);
 
   const out = readouts(root.querySelector(".widget-readouts"),
-    ["Wind angle", "Boat speed", "VMG"]);
+    [T.roTwa, T.roBsp, T.roVmg]);
   const caption = root.querySelector(".widget-live");
 
   function update() {
@@ -140,7 +142,6 @@ export function mountPolar(root) {
     projLabel.setAttribute("x", C.x - 12);
     projLabel.setAttribute("y", fmt(C.y - (vmg * PXKN) / 2 + 4, 1));
     projLabel.setAttribute("text-anchor", "end");
-    projLabel.textContent = "VMG";
 
     const bu = pt(best.up.twa, polarSpeed(best.up.twa, tws));
     const bd = pt(best.down.twa, polarSpeed(best.down.twa, tws));
@@ -149,24 +150,22 @@ export function mountPolar(root) {
     bestUpText.setAttribute("x", fmt(bu.x + 12, 1)); bestUpText.setAttribute("y", fmt(bu.y - 8, 1));
     bestDownText.setAttribute("x", fmt(bd.x - 12, 1)); bestDownText.setAttribute("y", fmt(bd.y + 18, 1));
 
-    out.set("Wind angle", `${fmt(twa, 0)}°`);
-    out.set("Boat speed", `${fmt(v)} kn`);
-    out.set("VMG", vmg >= 0
-      ? `${fmt(vmg)} kn upwind`
-      : `${fmt(-vmg)} kn downwind`);
+    out.set(T.roTwa, `${S.n(twa, 0)}°`);
+    out.set(T.roBsp, `${S.n(v)} kn`);
+    out.set(T.roVmg, vmg >= 0 ? T.vmgUp(S.n(vmg)) : T.vmgDown(S.n(-vmg)));
 
     let msg;
     if (twa < 27) {
-      msg = "Inside the no-go zone the polar collapses to zero — the sail can’t work here. The route upwind is the pair of dots: sail close-hauled, tack, repeat.";
+      msg = T.msgNoGo;
     } else if (Math.abs(twa - best.up.twa) < 4) {
-      msg = `The upwind groove: ${fmt(best.up.twa, 0)}° isn’t the closest you can point, but it’s the angle that makes the most progress <em>toward</em> the wind — ${fmt(best.up.vmg)} kn of VMG.`;
+      msg = T.msgBestUp(S.n(best.up.twa, 0), S.n(best.up.vmg));
     } else if (twa >= 168) {
       const gain = ((best.down.vmg / Math.max(-vmg, 0.01)) - 1) * 100;
-      msg = `Dead downwind: ${fmt(v)} kn. But heat it up to ${fmt(best.down.twa, 0)}° and gybe your way there instead — the extra boat speed beats the longer path by about ${fmt(gain, 0)}%.`;
+      msg = T.msgDeadRun(S.n(v), S.n(best.down.twa, 0), S.n(gain, 0));
     } else if (twa > 80 && twa < 130) {
-      msg = `The fat part of the polar. Around here the apparent wind is still strong and fully usable — this is why a ${twa < 100 ? "beam" : "broad"} reach is the fastest point of sail.`;
+      msg = T.msgFat(twa < 100);
     } else {
-      msg = `At ${fmt(twa, 0)}° in ${tws} kn of wind this boat makes ${fmt(v)} kn. Drag around the curve, and try the other wind speeds — notice how the curves bunch up as the hull runs out of waterline.`;
+      msg = T.msgGeneral(S.n(twa, 0), S.n(tws, 0), S.n(v));
     }
     caption.innerHTML = msg;
   }

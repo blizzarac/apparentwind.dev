@@ -5,6 +5,9 @@ import {
 import {
   makeSvg, el, arrow, draggable, slider, readouts, hullPath, svgPoint,
 } from "./svg.js";
+import { S } from "./strings.js";
+
+const T = S.apparent;
 
 export function mountApparent(root) {
   const W = 680, H = 520;
@@ -26,7 +29,7 @@ export function mountApparent(root) {
       class: "wind-streak",
     }, scenery);
   }
-  el("text", { x: W / 2, y: 14, class: "diagram-note", "text-anchor": "middle", text: "true wind" }, svg);
+  el("text", { x: W / 2, y: 14, class: "diagram-note", "text-anchor": "middle", text: T.trueWindNote }, svg);
 
   // --- vector triangle ------------------------------------------------------
   const vecLayer = el("g", { "pointer-events": "none" }, svg);
@@ -34,11 +37,11 @@ export function mountApparent(root) {
   const col = (name) => css.getPropertyValue(name).trim();
   const C_TRUE = col("--c-true"), C_BOAT = col("--c-boat"), C_APP = col("--c-apparent");
 
-  const aTrue = arrow(vecLayer, { color: C_TRUE, width: 3, label: "true wind" });
-  const aBoat = arrow(vecLayer, { color: C_BOAT, width: 3, label: "wind you make" });
+  const aTrue = arrow(vecLayer, { color: C_TRUE, width: 3, label: T.vecTrue });
+  const aBoat = arrow(vecLayer, { color: C_BOAT, width: 3, label: T.vecBoat });
   const aTrueGhost = arrow(vecLayer, { color: C_TRUE, width: 1.6, dash: "4 5" });
   const aBoatGhost = arrow(vecLayer, { color: C_BOAT, width: 1.6, dash: "4 5" });
-  const aApp = arrow(vecLayer, { color: C_APP, width: 4.5, label: "apparent wind" });
+  const aApp = arrow(vecLayer, { color: C_APP, width: 4.5, label: T.vecApparent });
 
   // --- the boat (drawn beneath the vectors) --------------------------------
   const boatG = el("g", {}, svg);
@@ -68,16 +71,16 @@ export function mountApparent(root) {
   // --- controls + readouts --------------------------------------------------
   const controls = root.querySelector(".widget-controls");
   slider(controls, {
-    label: "Boat speed", min: 0, max: 16, step: 0.5, value: state.bsp, unit: " kn",
+    label: T.slBoatSpeed, min: 0, max: 16, step: 0.5, value: state.bsp, unit: " kn",
     onInput: (v) => { state.bsp = v; update(); },
   });
   slider(controls, {
-    label: "True wind", min: 2, max: 25, step: 0.5, value: state.tws, unit: " kn",
+    label: T.slTrueWind, min: 2, max: 25, step: 0.5, value: state.tws, unit: " kn",
     onInput: (v) => { state.tws = v; update(); },
   });
 
   const out = readouts(root.querySelector(".widget-readouts"),
-    ["True wind", "Boat speed", "Apparent wind", "Apparent angle"]);
+    [T.roTrue, T.roBoat, T.roApparent, T.roAngle]);
   const caption = root.querySelector(".widget-live");
 
   function update() {
@@ -100,26 +103,26 @@ export function mountApparent(root) {
     fly.setAttribute("transform",
       `translate(0 -14) rotate(${angleOf(aw.apparentFlow) - state.heading})`);
 
-    out.set("True wind", `${fmt(state.tws)} kn`);
-    out.set("Boat speed", `${fmt(state.bsp)} kn`);
-    out.set("Apparent wind", `${fmt(aw.aws)} kn`);
-    const side = aw.awa >= 0 ? "starboard" : "port";
-    out.set("Apparent angle", `${fmt(Math.abs(aw.awa), 0)}° ${side}`);
+    out.set(T.roTrue, `${S.n(state.tws)} kn`);
+    out.set(T.roBoat, `${S.n(state.bsp)} kn`);
+    out.set(T.roApparent, `${S.n(aw.aws)} kn`);
+    const side = aw.awa >= 0 ? S.sides.starboard : S.sides.port;
+    out.set(T.roAngle, `${S.n(Math.abs(aw.awa), 0)}° ${side}`);
 
     // A sentence that names what the reader is seeing right now.
     const twaAbs = Math.abs(aw.twa);
     const shift = Math.abs(aw.awa) - twaAbs;
     let msg;
     if (state.bsp < 0.25) {
-      msg = "The boat is stopped, so the apparent wind <em>is</em> the true wind. Speed up and watch them split apart.";
+      msg = T.msgStopped;
     } else if (twaAbs < 25) {
-      msg = "Pointing almost dead upwind: your own motion just adds to the true wind on the nose. Sails can’t work here — this is the no-go zone.";
+      msg = T.msgNoGo;
     } else if (twaAbs > 155 && state.bsp > 0.5) {
-      msg = `Running downwind, your boat speed <em>subtracts</em>: only ${fmt(aw.aws)} kn of apparent wind is left to work with. This is why dead downwind feels calm — and is slow.`;
+      msg = T.msgRun(S.n(aw.aws));
     } else if (shift < -8) {
-      msg = `The apparent wind has swung ${fmt(-shift, 0)}° <em>forward</em> of the true wind and blows at ${fmt(aw.aws)} kn. The faster you go, the more wind seems to come from ahead.`;
+      msg = T.msgForward(S.n(-shift, 0), S.n(aw.aws));
     } else {
-      msg = `True wind ${fmt(state.tws)} kn at ${fmt(twaAbs, 0)}° off the bow; moving at ${fmt(state.bsp)} kn bends it to ${fmt(aw.aws)} kn at ${fmt(Math.abs(aw.awa), 0)}°. The sail only ever meets this teal vector.`;
+      msg = T.msgGeneral(S.n(state.tws), S.n(twaAbs, 0), S.n(state.bsp), S.n(aw.aws), S.n(Math.abs(aw.awa), 0));
     }
     caption.innerHTML = msg;
   }

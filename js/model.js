@@ -139,14 +139,15 @@ export function bestVmg(tws) {
   return { up, down };
 }
 
+// Returns a language-neutral key; the strings module maps it to a name.
 export function pointOfSail(twaDeg) {
   const t = Math.abs(twaDeg);
-  if (t < 30) return "In irons — the no-go zone";
-  if (t < 50) return "Close-hauled";
-  if (t < 80) return "Close reach";
-  if (t < 110) return "Beam reach";
-  if (t < 150) return "Broad reach";
-  return "Run";
+  if (t < 30) return "nogo";
+  if (t < 50) return "closehauled";
+  if (t < 80) return "closereach";
+  if (t < 110) return "beamreach";
+  if (t < 150) return "broadreach";
+  return "run";
 }
 
 export const fmt = (n, digits = 1) => n.toFixed(digits);

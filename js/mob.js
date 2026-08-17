@@ -3,6 +3,9 @@
 // Steer with ← / → (or the buttons), get back to the swimmer, arrive slowly.
 import { polarSpeed, apparentWind, dir, clamp, fmt } from "./model.js";
 import { readouts } from "./svg.js";
+import { S } from "./strings.js";
+
+const T = S.mob;
 
 const TWS = 12;
 const KN = 0.514;      // knots → m/s
@@ -46,12 +49,12 @@ export function mountMob(root) {
     btnRow.appendChild(b);
     return b;
   }
-  steerBtn("⟲ port", "left");
-  steerBtn("starboard ⟳", "right");
+  steerBtn(T.btnPort, "left");
+  steerBtn(T.btnStarboard, "right");
   const resetBtn = document.createElement("button");
   resetBtn.type = "button";
   resetBtn.className = "sim-btn sim-btn-reset";
-  resetBtn.textContent = "restart";
+  resetBtn.textContent = T.btnRestart;
   resetBtn.addEventListener("click", () => reset());
   btnRow.appendChild(resetBtn);
 
@@ -66,7 +69,7 @@ export function mountMob(root) {
   });
 
   const out = readouts(root.querySelector(".widget-readouts"),
-    ["Boat speed", "Wind angle", "Distance to crew", "Clock"]);
+    [T.roBsp, T.roTwa, T.roDist, T.roClock]);
   const caption = root.querySelector(".widget-live");
 
   // --- state ----------------------------------------------------------------
@@ -135,7 +138,7 @@ export function mountMob(root) {
       phase = "rescue";
       const back = dir(boat.heading + 155);
       mob = { x: clamp(boat.x + back.x * 12, 15, W / SCALE - 15), y: clamp(boat.y + back.y * 12, 15, H / SCALE - 15), t: simClock };
-      banner.textContent = "Crew overboard!";
+      banner.textContent = T.bannerAlarm;
       banner.className = "sim-banner is-alarm";
       setTimeout(() => { if (phase === "rescue") banner.className = "sim-banner is-alarm is-fading"; }, 2500);
     }
@@ -145,7 +148,7 @@ export function mountMob(root) {
       if (dist < RESCUE_RADIUS && boat.speed < RESCUE_SPEED) {
         phase = "saved";
         const secs = Math.round(simClock - mob.t);
-        banner.textContent = `Crew recovered — ${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")} in the water`;
+        banner.textContent = T.bannerSaved(`${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`);
         banner.className = "sim-banner is-saved";
       }
     }
@@ -256,24 +259,24 @@ export function mountMob(root) {
 
   function hud() {
     const twa = twaOf(boat.heading);
-    out.set("Boat speed", `${fmt(boat.speed)} kn`);
-    out.set("Wind angle", `${fmt(twa, 0)}°`);
+    out.set(T.roBsp, `${S.n(boat.speed)} kn`);
+    out.set(T.roTwa, `${S.n(twa, 0)}°`);
     const dist = mob ? Math.hypot(boat.x - mob.x, boat.y - mob.y) : null;
-    out.set("Distance to crew", mob ? `${fmt(dist, 0)} m` : "—");
+    out.set(T.roDist, mob ? `${S.n(dist, 0)} m` : "—");
     const secs = Math.floor(mob ? simClock - mob.t : simClock);
-    out.set("Clock", `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`);
+    out.set(T.roClock, `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`);
 
     let msg;
     if (phase === "sailing") {
-      msg = "You’re on a beam reach in 12 kn of breeze. Get a feel for the helm with ← and → (or the buttons). Notice you simply cannot steer straight upwind.";
+      msg = T.msgSailing;
     } else if (phase === "saved") {
-      msg = "Well sailed. The trick you just used — arrive <em>pointing close to the wind</em>, so the sail can spill its power and the boat parks — is exactly the apparent-wind physics from the top of this page.";
+      msg = T.msgSaved;
     } else if (twa < 27) {
-      msg = "You’re in irons — stuck head to wind, sails luffing, speed bleeding away. Bear away to either side to fill the sail again.";
+      msg = T.msgIrons;
     } else if (dist !== null && dist < 32 && boat.speed > 3) {
-      msg = "Close now, but too fast — at this speed you’ll overshoot the swimmer. Head up toward the wind to slow down.";
+      msg = T.msgTooFast;
     } else {
-      msg = `Get back to the swimmer, then arrive <em>slowly</em>: within the dashed circle at under ${RESCUE_SPEED} kn. Classic shape: sail off on a beam reach, turn, come back on a close reach so you can slow down at will.`;
+      msg = T.msgGeneral(S.n(RESCUE_SPEED, 0));
     }
     if (caption.dataset.msg !== msg) {
       caption.dataset.msg = msg;
